@@ -1,45 +1,60 @@
 class Solution {
-    /**
-     * @param {number[]} nums
-     * @param {number} k
-     * @return {number[]}
-     */
     topKFrequent(nums, k) {
-        const map = new Map();
-        for (const num of nums){
-            const value = map.get(num) || 0;
-            map.set(num, value + 1);
+        const freq = new Map();
+        for (const num of nums) {
+            freq.set(num, (freq.get(num) || 0) + 1);
         }
-        const res = [...map].sort((a,b) => b[1]- a[1]).map(e => e[0]);
-        return res.slice(0,k);
-             
+
+        // Bucket sort by frequency: index = frequency, value = list of nums
+        const buckets = Array.from({ length: nums.length + 1 }, () => []);
+
+        for (const [num, count] of freq) {
+            buckets[count].push(num);
+        }
+
+        const res = [];
+        for (let count = buckets.length - 1; count >= 0 && res.length < k; count--) {
+            console.log(buckets[count])
+            for (const num of buckets[count]) {
+                res.push(num);
+                if (res.length === k) break;
+            }
+        }
+        return res;
     }
 }
 
 /* ============================================================
- * REVIEW — Rating: 6/10
+ * REVIEW — Rating: 7/10
  *
- * Why this isn't perfect:
- * - Sorts the ENTIRE frequency map with `.sort((a,b) => b[1]-a[1])`, which is
- *   O(n log n). This is the classic "top-k" problem, and it has a well-known
- *   O(n log k) (heap) or O(n) (bucket-sort by frequency) solution — sorting
- *   everything just to take the first k is asymptotically wasteful.
- * - `res.slice(0, k)` after a full sort means work is done for elements far
- *   outside the top-k that is then thrown away.
+ * Why this isn't perfect (this round replaces the previous winner —
+ * see _archive/solution-previous.js for the earlier 6/10 sort-based
+ * solution this superseded):
+ * - Algorithmically this is now optimal: bucket sort by frequency is
+ *   O(n) time and O(n) space, better than the previous winner's
+ *   O(n log n) full sort. Frequencies are bounded by `nums.length`, so
+ *   a fixed-size bucket array indexed by count avoids any comparison
+ *   sort entirely. Correctly handles all elements sharing one
+ *   frequency, k equal to the number of distinct elements, and ties
+ *   within a bucket (order among tied elements is unspecified by the
+ *   problem, so insertion order is fine).
+ * - `console.log(buckets[count])` on line 17 is a leftover debug
+ *   statement — it doesn't affect correctness but has no place in
+ *   committed code and will spam stdout on every call.
+ * - Missing JSDoc param/return annotations that sibling solutions in
+ *   this repo consistently include.
  *
  * Areas of improvement:
- * - Use bucket sort: create `buckets[frequency] = [nums...]`, sized
- *   `nums.length + 1`, then walk from the highest frequency down until k
- *   numbers are collected — O(n) time, O(n) space.
- * - Alternatively use a min-heap of size k for O(n log k).
- * - No edge-case handling shown for k > number of distinct elements (works
- *   fine here since slice just returns what's available, but worth a comment).
+ * - Remove the console.log.
+ * - Add `@param`/`@return` JSDoc comments for consistency with the
+ *   rest of the repo.
  * ============================================================ */
 
 /* ============================================================
  * IDEAL SOLUTION (reference)
  * ============================================================
 class Solution {
+    // @param {number[]} nums, @param {number} k, @return {number[]}
     topKFrequent(nums, k) {
         const freq = new Map();
         for (const num of nums) {
