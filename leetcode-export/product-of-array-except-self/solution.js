@@ -10,7 +10,7 @@ var productExceptSelf = function (nums) {
   product = 1;
   for (let j = nums.length - 1; j > 0; j--) {
     product = product * nums[j]
-    res[j - 1] = product * res[j - 1];;
+    res[j - 1] = product * res[j - 1];
   }
   return res;
 };
