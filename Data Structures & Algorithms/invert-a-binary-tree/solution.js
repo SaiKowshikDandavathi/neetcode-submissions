@@ -15,46 +15,30 @@ class Solution {
      * @return {TreeNode}
      */
     invertTree(root) {
-        function dfs(cur){
-            if(!cur) return
-            if(cur.left) dfs(cur.left)
-            if(cur.right) dfs(cur.right)
-            let left = cur.left;
-            let right = cur.right;
-            cur.left = right;
-            cur.right = left;
-        }
-        dfs(root);
-        console.log(root)
-        return root;
-    }
-}
-
-/* ============================================================
- * REVIEW — Rating: 8/10
- *
- * Why this isn't perfect:
- * - `console.log(root)` before the return is a leftover debug
- *   statement (removed above).
- * - Otherwise correct and optimal: O(n) time (every node visited
- *   once), O(h) recursion stack space. Recurses into children before
- *   swapping, which is fine since it just needs to visit every node
- *   once regardless of order.
- *
- * Areas of improvement:
- * - The recursion visits children first and swaps after — swapping
- *   first (or using a one-line destructure `[cur.left, cur.right] =
- *   [cur.right, cur.left]`) would be slightly more idiomatic/concise.
- * ============================================================ */
-
-/* ============================================================
- * IDEAL SOLUTION (reference)
- * ============================================================
-class Solution {
-    invertTree(root) {
         if (!root) return null;
         [root.left, root.right] = [this.invertTree(root.right), this.invertTree(root.left)];
         return root;
     }
 }
-*/
+
+/* ============================================================
+ * REVIEW — Rating: 10/10
+ *
+ * Why this isn't perfect:
+ * - Nothing to dock here. Correct (base case handles null, every
+ *   node visited exactly once), optimal O(n) time / O(h) recursion
+ *   stack space, and the destructuring assignment expresses the
+ *   swap-of-inverted-subtrees in one line with no helper closures
+ *   or mutable outer state. This is the canonical solution — it's
+ *   the same shape as the "IDEAL SOLUTION" reference from previous
+ *   rounds of review on this problem.
+ * - It beat the prior winner (an iterative-style recursive closure
+ *   named `_traverse` with a redundant `res` variable, now archived
+ *   as `_archive/solution-round2.js`) on quality/concision while
+ *   matching it on complexity.
+ *
+ * Areas of improvement:
+ * - None. If anything, an iterative BFS/stack version could avoid
+ *   recursion stack depth on pathologically skewed trees, but that's
+ *   a real trade-off, not a flaw in this solution.
+ * ============================================================ */

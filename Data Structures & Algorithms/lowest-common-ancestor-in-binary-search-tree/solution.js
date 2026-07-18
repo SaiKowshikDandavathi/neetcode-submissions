@@ -38,6 +38,11 @@ class Solution {
  * - `if(!p || !q) return root` is defensive code for an input shape
  *   (`p`/`q` null) that LeetCode's constraints guarantee never
  *   happens, so it's effectively dead code.
+ * - A new submission this round (`submission-1`, now archived) was
+ *   functionally identical — same checks, same recursion, just the
+ *   left/right branch order swapped and slightly more consistent
+ *   spacing/semicolons. No behavioral difference, so this file
+ *   remains the pick rather than shuffling for a cosmetic-only change.
  *
  * Areas of improvement:
  * - Convert to an iterative loop to drop the O(h) recursion stack

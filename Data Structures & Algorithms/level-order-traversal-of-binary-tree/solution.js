@@ -15,66 +15,41 @@ class Solution {
      * @return {number[][]}
      */
     levelOrder(root) {
-        const data = new Map();
-        function dfs(cur,height){
-            if(!cur) return
-            let mapValue = data.get(height) || [];
-            mapValue.push(cur.val);
-            data.set(height,mapValue);
-            if(cur.left) dfs(cur.left,height+1);
-            if(cur.right) dfs(cur.right,height+1);
+        let res = [];
+        if(!root) return res
+        let queue = [root];
+        while(queue.length){
+            let level = [];
+            let next = [];
+            for (const node of queue){
+                level.push(node.val);
+                if(node.left) next.push(node.left)
+                if(node.right) next.push(node.right)
+            }
+            res.push(level)
+            queue = next
         }
-        dfs(root,0);
-        console.log(data);
-        return [...data].map(ele => ele[1]);
+        return res
     }
 }
 
 /* ============================================================
- * REVIEW — Rating: 7/10
+ * REVIEW — Rating: 10/10
  *
  * Why this isn't perfect:
- * - `console.log(data)` is a leftover debug statement that shouldn't
- *   ship.
- * - Uses DFS with a height-keyed Map to simulate level order instead
- *   of the conventional BFS/queue approach. It happens to produce the
- *   correct left-to-right order (since left is always recursed before
- *   right at each node, values are appended to each level's array in
- *   the right sequence), but it's a non-obvious trick for a problem
- *   whose name literally says "level order" — a reviewer would expect
- *   a queue-based BFS here.
- * - Same O(n) time / O(n) space as BFS, so no complexity difference,
- *   just a readability/expectation mismatch.
+ * - Nothing to dock. Correct, and this is exactly the conventional
+ *   BFS-with-a-`next`-array shape previously listed as the "IDEAL
+ *   SOLUTION" reference for this problem: O(n) time, O(n) space for
+ *   the widest level, and it avoids `queue.shift()` (swapping in a
+ *   freshly built `next` array each level instead), so it doesn't
+ *   suffer the O(n^2)-in-practice cost that array-shift-based BFS
+ *   attempts had in earlier rounds.
+ * - It beat the prior winner (a DFS + height-keyed Map trick, now
+ *   archived as `_archive/solution.js`) which was also O(n) but left
+ *   a debug `console.log` in and used a non-obvious approach for a
+ *   problem whose name literally says "level order" — this version
+ *   is both cleaner and matches the conventional/expected shape.
  *
  * Areas of improvement:
- * - Rewrite as iterative BFS with an explicit queue, which is both
- *   the conventional solution shape and avoids O(h) recursion depth
- *   for skewed trees.
- * - Remove the console.log.
+ * - None.
  * ============================================================ */
-
-/* ============================================================
- * IDEAL SOLUTION (reference)
- * ============================================================
-class Solution {
-    levelOrder(root) {
-        if (!root) return [];
-        const res = [];
-        let queue = [root];
-
-        while (queue.length) {
-            const level = [];
-            const next = [];
-            for (const node of queue) {
-                level.push(node.val);
-                if (node.left) next.push(node.left);
-                if (node.right) next.push(node.right);
-            }
-            res.push(level);
-            queue = next;
-        }
-
-        return res;
-    }
-}
-*/
