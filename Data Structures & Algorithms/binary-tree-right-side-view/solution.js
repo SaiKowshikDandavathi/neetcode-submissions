@@ -15,42 +15,42 @@ class Solution {
      * @return {number[]}
      */
     rightSideView(root) {
-        const data = new Map();
-        function dfs(cur, height){
-            if(!cur) return
-            let mapValue = data.get(height) || [];
-            mapValue.push(cur.val);
-            data.set(height,mapValue);
-            if(cur.right) dfs(cur.right,height+1);
-            if(cur.left) dfs(cur.left,height+1);
+        if (!root) return [];
+        let queue = [root];
+        let res = [];
+
+        while (queue.length) {
+            let next = [];
+            let level = [];
+            for (const node of queue) {
+                level.push(node.val);
+                if (node.left) next.push(node.left);
+                if (node.right) next.push(node.right);
+            }
+            queue = next;
+            res.push(level);
         }
-        dfs(root,0);
-        console.log(data);
-        return [...data].map(ele => ele[1][0]);
+        return res.map((e) => e[e.length - 1]);
     }
 }
 
 /* ============================================================
- * REVIEW — Rating: 7/10
+ * REVIEW — Rating: 8/10
  *
  * Why this isn't perfect:
- * - `console.log(data)` is a leftover debug statement that shouldn't
- *   ship in reviewed code.
- * - The `data` map stores an array of ALL node values at each height
- *   via `mapValue.push(cur.val)`, but only `ele[1][0]` (the first
- *   value seen) is ever used. That's wasted allocation/O(n) extra
- *   space for values that are collected and then discarded.
- * - Correctness relies on visiting right-before-left in DFS so the
- *   first value recorded per level is the rightmost node — correct,
- *   but the intent isn't obvious from the code and deserves a comment.
+ * - Builds a full `level` array of every node's value at each depth via
+ *   `level.push(node.val)`, but only the last entry (`e[e.length - 1]`)
+ *   is ever read back out in the final `.map()`. The intermediate values
+ *   are collected and then discarded — unnecessary allocation, though it
+ *   doesn't change the overall O(n) time/space complexity.
+ * - `res` and `level` are declared with `let` but never reassigned;
+ *   `const` would better signal intent.
  *
  * Areas of improvement:
- * - Track a single `res[height] = cur.val` (only set once, or always
- *   overwrite since right visited first is enough) instead of
- *   building arrays per level.
- * - Remove the console.log.
- * - Consider an iterative BFS (queue, last node per level) as the
- *   more conventional/expected solution shape for this problem.
+ * - Track just the last node's value per level directly (e.g.
+ *   `res.push(queue[queue.length - 1].val)` before descending, or keep a
+ *   running `last` variable inside the loop) instead of collecting a
+ *   throwaway array per level.
  * ============================================================ */
 
 /* ============================================================
@@ -63,8 +63,8 @@ class Solution {
         let queue = [root];
 
         while (queue.length) {
-            const next = [];
             res.push(queue[queue.length - 1].val);
+            const next = [];
             for (const node of queue) {
                 if (node.left) next.push(node.left);
                 if (node.right) next.push(node.right);

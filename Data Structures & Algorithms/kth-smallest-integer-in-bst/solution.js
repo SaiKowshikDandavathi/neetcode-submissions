@@ -16,38 +16,50 @@ class Solution {
      * @return {number}
      */
     kthSmallest(root, k) {
-        const data = [];
-        function inOrder(cur){
-            if(!cur) return
-            if(cur.left) inOrder(cur.left);
-            data.push(cur.val);
-            if(cur.right) inOrder(cur.right);
+        const stack = [];
+        let result;
+
+        const _traverse = (node) => {
+            if(!node || result !== undefined) return
+            if(node.left) _traverse(node.left)
+            stack.push(node.val)
+            if(stack.length === k) {
+                result = stack[stack.length - 1]
+                return
+            }
+            if(node.right) _traverse(node.right)
         }
-        inOrder(root);
-        console.log(data)
-        return data.length + 1 >= k ? data[k-1] : null
+        _traverse(root)
+        return result
     }
 }
 
 /* ============================================================
- * REVIEW — Rating: 7/10
+ * REVIEW — Rating: 8/10
  *
  * Why this isn't perfect:
- * - `console.log(data)` is a leftover debug statement (removed
- *   above).
- * - Full in-order traversal always visits all n nodes and collects
- *   all n values into `data`, giving O(n) time and O(n) space even
- *   when k is small (e.g. k=1 on a 10,000-node tree still walks the
- *   whole tree). The optimal approach stops as soon as the k-th
- *   value is found, giving O(h + k) time and O(h) space.
- * - `data.length + 1 >= k` is an odd way to write `k <= data.length`
- *   (off-by-one-looking, even though it's not actually wrong since
- *   k is guaranteed valid by the problem's constraints).
+ * - Fixes the real bug from the prior winner (archived as
+ *   `_archive/submission-1.js`): the early-exit guard now checks
+ *   `result !== undefined` instead of truthiness, so a k-th smallest
+ *   value of `0` no longer defeats the short-circuit. Correct in all
+ *   cases now.
+ * - `stack` is still only ever pushed to, never popped — it's an
+ *   accumulator of up to k in-order values, not a real stack. That
+ *   makes space O(k) in the worst case, where an iterative traversal
+ *   that pushes/pops actual tree nodes along the current path only
+ *   needs O(h) space.
+ * - `_traverse`'s underscore prefix is unconventional for a plain
+ *   closure already scoped inside `kthSmallest` — reads like a
+ *   private-member convention that doesn't apply here.
  *
  * Areas of improvement:
- * - Use an iterative in-order traversal with an explicit stack that
- *   returns as soon as the k-th node is popped, avoiding the
- *   unnecessary full-tree walk and extra array.
+ * - Use the standard iterative in-order-with-explicit-stack pattern
+ *   (see ideal below): the stack holds ancestor nodes on the current
+ *   left spine and is popped as each is visited, giving O(h) space
+ *   and a simple `k === 0` stopping condition with no closures or
+ *   outer mutable `result`.
+ * - Drop the underscore from the helper name, or inline the logic
+ *   entirely if switching to the iterative approach.
  * ============================================================ */
 
 /* ============================================================
